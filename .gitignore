@@ -1,1 +1,3 @@
-g-cn.txt
+*.txt
+.vscode/
+_example/ss-server/ss-server*
