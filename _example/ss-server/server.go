@@ -153,6 +153,13 @@ func handleConnection(conn *ss.Conn, auth bool, port string) {
 		closed = true
 		return
 	}
+
+	if AccessDenied(host) {
+		log.Println("Blocking host", host)
+		closed = true
+		return
+	}
+
 	debug.Println("connecting", host)
 	remote, err := net.Dial("tcp", host)
 	if err != nil {
@@ -366,6 +373,7 @@ func run(port, password string, auth bool) {
 	passwdManager.add(port, password, ln)
 	var cipher *ss.Cipher
 	log.Printf("server listening port %v ...\n", port)
+	go filterTraffic()
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
