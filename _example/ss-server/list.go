@@ -90,12 +90,7 @@ func (g *HostGroup) Contains(host string) bool {
 	return false
 }
 
-func (g *HostGroup) Match(host string) bool {
-	if g.Contains(host) {
-		return true
-	}
-
-	ip := host
+func (g *HostGroup) Match(ip string) bool {
 	addrs, err := net.LookupAddr(ip)
 	if err != nil {
 		for _, addr := range addrs {

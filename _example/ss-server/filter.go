@@ -3,15 +3,12 @@ package main
 import (
 	"log"
 	"net"
-	"os"
-	"os/signal"
-	"time"
 )
 
 var (
-	whitelist  HostGroup
-	blacklist  HostGroup
-	greyIPs    []string
+	whitelist HostGroup
+	blacklist HostGroup
+	// greyIPs    []string
 	strictMode bool = false
 
 	// config FilterConfig
@@ -58,10 +55,12 @@ func AccessDenied(addr string) (rejected bool) {
 
 	if inWhiteList(host) {
 		// add to white cache
+		whitelist.CachedHosts.Add(host)
 		log.Println(addr, "is in whitelist.")
 		return false
 	} else if inBlackList(host) {
 		// add to black cache
+		blacklist.CachedHosts.Add(host)
 		log.Println(addr, "is in blacklist.")
 		return true
 	}
@@ -70,10 +69,18 @@ func AccessDenied(addr string) (rejected bool) {
 		// no filter for if the strategy is not strict
 		// add to black cache
 		rejected = true
-		// TODO
-		// addr check
-		greyIPs = append(greyIPs, host)
+
 		// update block cache check whether it's in white list
+		if whitelist.Match(host) {
+			whitelist.CachedHosts.Add(host)
+			return true
+		}
+
+		// greyIPs = append(greyIPs, host)
+
+	} else if blacklist.Match(host) {
+		blacklist.CachedHosts.Add(host)
+		return false
 	}
 
 	return
@@ -100,34 +107,4 @@ func filterTraffic() {
 	blacklist.InitDomainIPs()
 
 	log.Println("network traffic filter is started.")
-
-	signalCh := make(chan os.Signal, 1)
-	signal.Notify(signalCh, os.Interrupt)
-
-	// every 5 minutes
-	ticker := time.NewTicker(10 * time.Second)
-	for {
-		select {
-		case <-ticker.C:
-			go clearGreyIPs()
-		case <-signalCh:
-			ticker.Stop()
-			break
-		}
-	}
-}
-
-func clearGreyIPs() {
-	log.Println("grep ips", greyIPs)
-
-	for _, ip := range greyIPs {
-		if whitelist.Match(ip) {
-			whitelist.CachedHosts.Add(ip)
-		}
-		if blacklist.Match(ip) {
-			blacklist.CachedHosts.Add(ip)
-		}
-	}
-
-	greyIPs = []string{}
 }
