@@ -20,6 +20,8 @@ func Test_transcode(t *testing.T) {
 	}{
 		{"transcode_encode_empty", args{strings.NewReader(""), true}, "", false},
 		{"transcode_decode_empty", args{strings.NewReader(""), false}, "", false},
+		{"transcode_encode", args{strings.NewReader("abc.xyz"), true}, "YWJjLnh5egAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\n", false},
+		{"transcode_decode", args{strings.NewReader("YWJjLnh5egAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="), false}, "abc.xyz\n", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
