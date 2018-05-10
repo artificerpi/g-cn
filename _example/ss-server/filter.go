@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net"
 )
@@ -9,9 +11,8 @@ var (
 	whitelist HostGroup
 	blacklist HostGroup
 	// greyIPs    []string
-	strictMode bool = false
 
-	// config FilterConfig
+	strictMode = false
 )
 
 // nslookup  net.LookupAddr  context custom dns 8.8.8.8
@@ -87,24 +88,38 @@ func AccessDenied(addr string) (rejected bool) {
 }
 
 func filterTraffic() {
+	filterConfig, err := loadConfig(filterFile)
+	if err != nil {
+		panic(err)
+	}
+
 	whitelist = HostGroup{
-		Domains: []string{
-			"whitesite.com",
-		},
+		Domains:     filterConfig.Whitelist,
 		IPs:         CountSet{},
 		CachedHosts: CountSet{},
 	}
 
 	blacklist = HostGroup{
-		Domains: []string{
-			"blacksite.com",
-		},
+		Domains:     filterConfig.Blacklist,
 		IPs:         CountSet{},
 		CachedHosts: CountSet{},
 	}
+
+	strictMode = filterConfig.StrictMode
 
 	whitelist.InitDomainIPs()
 	blacklist.InitDomainIPs()
 
 	log.Println("network traffic filter is started.")
+}
+
+func loadConfig(file string) (FilterConfig, error) {
+	var c FilterConfig
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return c, err
+	}
+
+	json.Unmarshal(data, &c)
+	return c, nil
 }

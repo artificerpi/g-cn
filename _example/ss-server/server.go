@@ -446,6 +446,7 @@ func unifyPortPassword(config *ss.Config) (err error) {
 }
 
 var configFile string
+var filterFile string
 var config *ss.Config
 
 func main() {
@@ -457,6 +458,7 @@ func main() {
 
 	flag.BoolVar(&printVer, "version", false, "print version")
 	flag.StringVar(&configFile, "c", "config.json", "specify config file")
+	flag.StringVar(&filterFile, "filter", "filter.json", "specify filter config file")
 	flag.StringVar(&cmdConfig.Password, "k", "", "password")
 	flag.IntVar(&cmdConfig.ServerPort, "p", 0, "server port")
 	flag.IntVar(&cmdConfig.Timeout, "t", 300, "timeout in seconds")

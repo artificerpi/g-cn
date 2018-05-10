@@ -1,0 +1,11 @@
+{
+    "strict": false,
+    "blacklist":[
+        "example.com",
+        "badsites.com"
+    ],
+    "whitelist":[
+        "safesite.com",
+        "good-ip"
+    ]
+}
