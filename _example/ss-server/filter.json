@@ -7,6 +7,7 @@
     ],
     "whitelist":[
         "safesite.com",
-        "good-ip"
+        "good-ip", 
+        "google.com"
     ]
 }

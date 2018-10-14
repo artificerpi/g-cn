@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net"
 	"strings"
 )
@@ -9,11 +9,17 @@ import (
 // CountSet stores host and count of times to access this element
 type CountSet map[string]int
 
-const MAX_SIZE = 1024 * 1024
+const MAX_SIZE = 1024
 
 func (s *CountSet) Add(e string) {
 	if !s.Contains(e) {
 		map[string]int(*s)[e] = 1
+	} else {
+		map[string]int(*s)[e]++
+	}
+
+	if s.Size() > MAX_SIZE {
+		go s.Shrink()
 	}
 }
 
@@ -23,27 +29,19 @@ func (s *CountSet) Remove(e string) {
 	}
 }
 
-func (s *CountSet) RemoveMostAccessed() {
-
-}
-
-func (s *CountSet) RemoveLeastAccessed() {
-
-}
-
-func (s *CountSet) clear() {
-	if s.Size() > MAX_SIZE {
-		// remove at most 1/4 records if it's full
-		for i := 0; i <= MAX_SIZE/8; i++ {
-			s.RemoveMostAccessed()
-			s.RemoveLeastAccessed()
+func (s *CountSet) Shrink() {
+	for k, v := range *s {
+		if v < 10 {
+			s.Remove(k)
 		}
+
+		map[string]int(*s)[k]--
 	}
 }
 
 func (s *CountSet) Contains(e string) bool {
 	if map[string]int(*s)[e] > 0 {
-		return false
+		return true
 	}
 
 	return false
@@ -103,6 +101,6 @@ func (g *HostGroup) Match(ip string) bool {
 	return false
 }
 
-func (g *HostGroup) Log() {
-	log.Println("domains", g.Domains, " ips: ", g.IPs, " cache: ", g.CachedHosts)
+func (g *HostGroup) String() {
+	fmt.Sprintln("domains", g.Domains, " ips: ", g.IPs, " cache: ", g.CachedHosts)
 }

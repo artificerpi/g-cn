@@ -10,7 +10,6 @@ import (
 var (
 	whitelist HostGroup
 	blacklist HostGroup
-	// greyIPs    []string
 
 	strictMode = false
 )
@@ -28,11 +27,8 @@ func AccessDenied(addr string) (rejected bool) {
 	}
 
 	// FOR debug
-	whitelist.Log()
-	blacklist.Log()
-
-	// default to false
-	rejected = false
+	log.Println(whitelist)
+	log.Println(blacklist)
 
 	if inWhiteList(host) {
 		// add to whitelist
@@ -46,19 +42,12 @@ func AccessDenied(addr string) (rejected bool) {
 		return true
 	}
 
-	if strictMode {
-		// no filter for if the strategy is not strict
-		// add to black cache
-		rejected = true
-
-		// update block cache check whether it's in white list
-		if whitelist.Match(host) {
-			whitelist.CachedHosts.Add(host)
-			return true
-		}
+	if strictMode && whitelist.Match(host) {
+		whitelist.CachedHosts.Add(host)
+		return false
 	}
 
-	return
+	return true
 }
 
 // nslookup  net.LookupAddr  context custom dns 8.8.8.8
@@ -106,6 +95,8 @@ func filterTraffic() {
 	blacklist.InitDomainIPs()
 
 	log.Println("network traffic filter is started.")
+	log.Println(whitelist)
+	log.Println(blacklist)
 }
 
 func loadConfig(file string) (FilterConfig, error) {
