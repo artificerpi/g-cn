@@ -15,27 +15,7 @@ var (
 	strictMode = false
 )
 
-// nslookup  net.LookupAddr  context custom dns 8.8.8.8
-// TODO reverse query to adjust whitelist and blacklist
-// make a thread for this
-// whitelist cache size 100, black 1000
-
-func inWhiteList(addr string) bool {
-	if whitelist.Contains(addr) {
-		return true
-	}
-
-	return false
-}
-
-func inBlackList(addr string) bool {
-	if blacklist.Contains(addr) {
-		return true
-	}
-
-	return false
-}
-
+// AccessDenied check wheter connection to the address is allowed
 func AccessDenied(addr string) (rejected bool) {
 	host, port, err := net.SplitHostPort(addr)
 	if err != nil {
@@ -55,12 +35,12 @@ func AccessDenied(addr string) (rejected bool) {
 	rejected = false
 
 	if inWhiteList(host) {
-		// add to white cache
-		whitelist.CachedHosts.Add(host)
+		// add to whitelist
 		log.Println(addr, "is in whitelist.")
+		whitelist.CachedHosts.Add(host)
 		return false
 	} else if inBlackList(host) {
-		// add to black cache
+		// add to blacklist
 		blacklist.CachedHosts.Add(host)
 		log.Println(addr, "is in blacklist.")
 		return true
@@ -76,15 +56,30 @@ func AccessDenied(addr string) (rejected bool) {
 			whitelist.CachedHosts.Add(host)
 			return true
 		}
-
-		// greyIPs = append(greyIPs, host)
-
-	} else if blacklist.Match(host) {
-		blacklist.CachedHosts.Add(host)
-		return false
 	}
 
 	return
+}
+
+// nslookup  net.LookupAddr  context custom dns 8.8.8.8
+// TODO reverse query to adjust whitelist and blacklist
+// make a thread for this
+// whitelist cache size 100, black 1000
+
+func inWhiteList(addr string) bool {
+	if whitelist.Contains(addr) {
+		return true
+	}
+
+	return false
+}
+
+func inBlackList(addr string) bool {
+	if blacklist.Contains(addr) {
+		return true
+	}
+
+	return false
 }
 
 func filterTraffic() {

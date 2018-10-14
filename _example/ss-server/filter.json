@@ -2,7 +2,8 @@
     "strict": false,
     "blacklist":[
         "example.com",
-        "badsites.com"
+        "badsites.com",
+        "baidu.com"
     ],
     "whitelist":[
         "safesite.com",

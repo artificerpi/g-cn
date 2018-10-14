@@ -104,5 +104,5 @@ func (g *HostGroup) Match(ip string) bool {
 }
 
 func (g *HostGroup) Log() {
-	log.Println("domains", g.Domains, " ips: ", g.IPs, " cache: ", g.Cache)
+	log.Println("domains", g.Domains, " ips: ", g.IPs, " cache: ", g.CachedHosts)
 }
